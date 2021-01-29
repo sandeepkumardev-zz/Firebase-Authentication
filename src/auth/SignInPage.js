@@ -1,10 +1,4 @@
-import {
-  Avatar,
-  Button,
-  FormControl,
-  Paper,
-  Typography,
-} from "@material-ui/core";
+import { Avatar, Button, Paper, Typography } from "@material-ui/core";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -91,6 +85,7 @@ function SignInPage() {
 
   const onSubmit = (data) => {
     console.log(data);
+    reset();
   };
 
   return (
