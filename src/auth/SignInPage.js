@@ -1,24 +1,123 @@
-import { Grid, Paper } from "@material-ui/core";
+import {
+  Avatar,
+  Button,
+  FormControl,
+  Paper,
+  Typography,
+} from "@material-ui/core";
 import React from "react";
-import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
+import { makeStyles } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
+import { Link } from "react-router-dom";
+import LockIcon from "@material-ui/icons/Lock";
+// import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+// import firebase from "firebase";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    '& > *': {
-      margin: theme.spacing(1),
-      width: '25ch',
+  root: {},
+  paper: {
+    width: "270px",
+    padding: theme.spacing(3),
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+  },
+  form: {
+    width: "100%",
+    marginBottom: "8px",
+  },
+  input: {
+    margin: "8px 0",
+  },
+  link: {
+    textDecoration: "none",
+    color: "#25317F",
+  },
+  large: {
+    width: theme.spacing(7),
+    height: theme.spacing(7),
+    backgroundColor: "#25317F",
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "column",
+    marginBottom: "25px",
+    "& .MuiTypography-h5": {
+      fontWeight: "bold",
+      fontFamily: "Acme, sans-serif",
+      color: "#25317F",
     },
   },
 }));
+
+// var uiConfig = {
+//   signInFlow: "popup",
+//   signInOptions: [
+//     firebase.auth.EmailAuthProvider.PROVIDER_ID,
+//     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+//   ],
+//   callbacks: {
+//     signInSuccessWithAuthResult: async (authResult) => {
+//       const userInfo = authResult.additionalUserInfo;
+//       if (userInfo.isNewUser && userInfo.providerId === "password") {
+//         try {
+//           await authResult.user.sendEmailVerification();
+//           console.log("Check your email");
+//         } catch (e) {
+//           console.log(e);
+//         }
+//       }
+//       return false;
+//     },
+//   },
+// };
 
 function SignInPage() {
   const classes = useStyles();
 
   return (
-    <form className={classes.root} noValidate autoComplete="off">
-      <TextField id="outlined-basic" label="Outlined" variant="outlined" />
-    </form>
+    <div className={classes.root}>
+      <Paper elevation={10} className={classes.paper}>
+        <div className={classes.header}>
+          <Avatar className={classes.large}>
+            <LockIcon />
+          </Avatar>
+          <Typography variant="h5">Sign In</Typography>
+        </div>
+        <FormControl className={classes.form}>
+          <TextField
+            className={classes.input}
+            label="Email"
+            variant="outlined"
+          />
+          <TextField
+            className={classes.input}
+            label="Password"
+            variant="outlined"
+          />
+          <Button className={classes.input} variant="contained" color="primary">
+            Sign In
+          </Button>
+        </FormControl>
+        <Typography variant="subtitle2" component="p">
+          <Link className={classes.link} to="/forget-password">
+            Forget Password
+          </Link>
+        </Typography>
+        <Typography variant="subtitle2" component="p">
+          Don't have account{" "}
+          <Link className={classes.link} to="/signup">
+            SignUp
+          </Link>
+        </Typography>
+        {/* <StyledFirebaseAuth
+          uiConfig={uiConfig}
+          firebaseAuth={firebase.auth()}
+        /> */}
+      </Paper>
+    </div>
   );
 }
 

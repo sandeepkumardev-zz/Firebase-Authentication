@@ -3,7 +3,7 @@ import SignInPage from "./auth/SignInPage";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "./components/Home";
 import SignUpPage from "./auth/SignUpPage";
-import ErrorPage from "./components/ErrorPage";
+import ErrorPage from "./ErrorPage";
 import { useData } from "./contexts";
 
 function App() {
