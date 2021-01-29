@@ -4,8 +4,13 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "./components/Home";
 import SignUpPage from "./auth/SignUpPage";
 import ErrorPage from "./components/ErrorPage";
+import { useData } from "./contexts";
 
 function App() {
+  const { value } = useData();
+  React.useEffect(() => {
+    console.log(value);
+  }, [value]);
   return (
     <Router>
       <Switch>
