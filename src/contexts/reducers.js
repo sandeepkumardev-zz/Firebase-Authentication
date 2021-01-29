@@ -27,6 +27,13 @@ export const initialState = {
     ],
   },
 };
+export const initialStatee = {
+  user: null,
+  data: {
+    bookmarks: [],
+    categories: [],
+  },
+};
 
 export const dataReducer = (state, action) => {
   switch (action.type) {

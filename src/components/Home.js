@@ -1,7 +1,8 @@
 import React from "react";
+import withHome from "./HOC/withHome";
 
 function Home() {
   return <div>Bookmark Application</div>;
 }
 
-export default Home;
+export default withHome(Home);

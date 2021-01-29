@@ -9,7 +9,11 @@ import { useData } from "./contexts";
 function App() {
   const { data } = useData();
   React.useEffect(() => {
-    console.log(data);
+    if (data.user) {
+      console.log("true");
+    } else {
+      console.log("false");
+    }
   }, [data]);
   return (
     <Router>
