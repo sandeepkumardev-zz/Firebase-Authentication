@@ -7,10 +7,10 @@ import ErrorPage from "./components/ErrorPage";
 import { useData } from "./contexts";
 
 function App() {
-  const { value } = useData();
+  const { data } = useData();
   React.useEffect(() => {
-    console.log(value);
-  }, [value]);
+    console.log(data);
+  }, [data]);
   return (
     <Router>
       <Switch>
