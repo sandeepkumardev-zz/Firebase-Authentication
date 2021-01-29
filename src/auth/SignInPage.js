@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import LockIcon from "@material-ui/icons/Lock";
 // import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 // import firebase from "firebase";
+import { useForm } from "react-hook-form";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -28,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "8px",
   },
   input: {
-    margin: "8px 0 3px 0",
+    margin: "10px 0 0 0",
     width: "100%",
   },
   inputb: {
@@ -54,6 +55,11 @@ const useStyles = makeStyles((theme) => ({
       fontFamily: "Acme, sans-serif",
       color: "#25317F",
     },
+  },
+  error: {
+    color: "red",
+    fontSize: "14px",
+    marginLeft: "10px",
   },
 }));
 
@@ -81,6 +87,11 @@ const useStyles = makeStyles((theme) => ({
 
 function SignInPage() {
   const classes = useStyles();
+  const { register, handleSubmit, errors, reset } = useForm();
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
 
   return (
     <div className={classes.root}>
@@ -91,45 +102,72 @@ function SignInPage() {
           </Avatar>
           <Typography variant="h5">Sign In</Typography>
         </div>
-        <FormControl className={classes.form}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className={classes.form}
+          noValidate
+        >
           <TextField
             className={classes.input}
             label="Email"
             variant="outlined"
+            name="email"
+            inputRef={register({
+              required: "Email is empty!",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Invalid email address",
+              },
+            })}
           />
+          {errors.email && (
+            <span className={classes.error}>{errors.email.message}</span>
+          )}
           <TextField
             className={classes.input}
             label="Password"
             variant="outlined"
+            name="password"
+            inputRef={register({
+              required: "Password is empty!",
+              minLength: { value: 6, message: "Too short" },
+            })}
           />
-          <Button className={classes.input} variant="contained" color="primary">
+          {errors.password && (
+            <span className={classes.error}>{errors.password.message}</span>
+          )}
+          <Button
+            type="submit"
+            className={classes.input}
+            variant="contained"
+            color="primary"
+          >
             Sign In
           </Button>
-          <Typography variant="subtitle2" component="p">
-            <Link className={classes.link} to="/forget-password">
-              Forget Password
-            </Link>
-          </Typography>
-          <div style={{ marginTop: "15px" }}>
-            <Link className={classes.link} to="/signup">
-              <Button
-                className={classes.inputb}
-                variant="contained"
-                color="primary"
-              >
-                Sign Up with Email
-              </Button>
-            </Link>
+        </form>
+        <Typography variant="subtitle2" component="p">
+          <Link className={classes.link} to="/forget-password">
+            Forget Password
+          </Link>
+        </Typography>
+        <div style={{ marginTop: "15px" }}>
+          <Link className={classes.link} to="/signup">
             <Button
               className={classes.inputb}
               variant="contained"
               color="primary"
             >
-              Sign Up with Google
+              Sign Up with Email
             </Button>
-          </div>
-        </FormControl>
-
+          </Link>
+          <Button
+            className={classes.inputb}
+            variant="contained"
+            color="primary"
+          >
+            Sign Up with Google
+          </Button>
+        </div>
         {/* <StyledFirebaseAuth
           uiConfig={uiConfig}
           firebaseAuth={firebase.auth()}
