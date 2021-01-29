@@ -9,6 +9,7 @@ const useStyles = makeStyles((theme) => ({
     left: "50%",
     top: "50%",
     transform: "translate(-50%, -50%)",
+    "& h1": { fontFamily: "Acme, sans-serif" },
   },
   link: {
     textDecoration: "none",
@@ -20,11 +21,11 @@ function ErrorPage() {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h2" component="h1">
-        🤷‍♂️ Page not found!
+      <Typography variant="h1" component="h1">
+        🤷‍♂️ <br /> Page not found!
       </Typography>
       <br />
-      <Typography variant="h6">
+      <Typography variant="h6" component="h1">
         <Link className={classes.link} to="/">
           👉 Go to home.
         </Link>

@@ -28,7 +28,12 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "8px",
   },
   input: {
-    margin: "8px 0",
+    margin: "8px 0 3px 0",
+    width: "100%",
+  },
+  inputb: {
+    margin: "5px 0 0 0",
+    width: "100%",
   },
   link: {
     textDecoration: "none",
@@ -100,18 +105,31 @@ function SignInPage() {
           <Button className={classes.input} variant="contained" color="primary">
             Sign In
           </Button>
+          <Typography variant="subtitle2" component="p">
+            <Link className={classes.link} to="/forget-password">
+              Forget Password
+            </Link>
+          </Typography>
+          <div style={{ marginTop: "15px" }}>
+            <Link className={classes.link} to="/signup">
+              <Button
+                className={classes.inputb}
+                variant="contained"
+                color="primary"
+              >
+                Sign Up with Email
+              </Button>
+            </Link>
+            <Button
+              className={classes.inputb}
+              variant="contained"
+              color="primary"
+            >
+              Sign Up with Google
+            </Button>
+          </div>
         </FormControl>
-        <Typography variant="subtitle2" component="p">
-          <Link className={classes.link} to="/forget-password">
-            Forget Password
-          </Link>
-        </Typography>
-        <Typography variant="subtitle2" component="p">
-          Don't have account{" "}
-          <Link className={classes.link} to="/signup">
-            SignUp
-          </Link>
-        </Typography>
+
         {/* <StyledFirebaseAuth
           uiConfig={uiConfig}
           firebaseAuth={firebase.auth()}
