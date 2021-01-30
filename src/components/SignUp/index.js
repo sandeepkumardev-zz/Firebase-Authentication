@@ -3,7 +3,7 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
-import LockIcon from "@material-ui/icons/Lock";
+import EnhancedEncryptionIcon from "@material-ui/icons/EnhancedEncryption";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -89,7 +89,7 @@ function SignUpPage() {
       <Paper elevation={10} className={classes.paper}>
         <div className={classes.header}>
           <Avatar className={classes.large}>
-            <LockIcon />
+            <EnhancedEncryptionIcon />
           </Avatar>
           <Typography variant="h5">Sign Up</Typography>
         </div>

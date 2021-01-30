@@ -1,4 +1,4 @@
-export const initialState = {
+export const initialStatee = {
   user: {
     uid: "63hft45483hd73hdb342",
     userName: "Sandy",
@@ -27,7 +27,7 @@ export const initialState = {
     ],
   },
 };
-export const initialStatee = {
+export const initialState = {
   user: null,
   data: {
     bookmarks: [],
@@ -37,8 +37,10 @@ export const initialStatee = {
 
 export const dataReducer = (state, action) => {
   switch (action.type) {
-    case "ADD_BOOKMARK":
-      return state;
+    case "ADD_USER":
+      return { user: action.auth, data: state.data };
+    case "RM_USER":
+      return { user: null, data: state.data };
     default:
       return state;
   }

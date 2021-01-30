@@ -4,12 +4,18 @@ import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
 import LockIcon from "@material-ui/icons/Lock";
-// import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-// import firebase from "firebase";
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import firebase from "firebase";
+import { auth } from "../../firebase";
 import { useForm } from "react-hook-form";
+import { withRouter } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  root: {
+    "& .firebaseui-idp-google>.firebaseui-idp-text": {
+      color: "#25317F",
+    },
+  },
   paper: {
     width: "270px",
     padding: theme.spacing(3),
@@ -57,29 +63,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// var uiConfig = {
-//   signInFlow: "popup",
-//   signInOptions: [
-//     firebase.auth.EmailAuthProvider.PROVIDER_ID,
-//     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-//   ],
-//   callbacks: {
-//     signInSuccessWithAuthResult: async (authResult) => {
-//       const userInfo = authResult.additionalUserInfo;
-//       if (userInfo.isNewUser && userInfo.providerId === "password") {
-//         try {
-//           await authResult.user.sendEmailVerification();
-//           console.log("Check your email");
-//         } catch (e) {
-//           console.log(e);
-//         }
-//       }
-//       return false;
-//     },
-//   },
-// };
+var uiConfig = {
+  signInFlow: "popup",
+  signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
+  callbacks: {
+    signInSuccessWithAuthResult: async (authResult) => {
+      const userInfo = authResult.additionalUserInfo;
+      if (userInfo.isNewUser && userInfo.providerId === "password") {
+        try {
+          await authResult.user.sendEmailVerification();
+          console.log("Check your email.");
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      return false;
+    },
+  },
+};
 
-function SignInPage() {
+function SignInPage(props) {
   const classes = useStyles();
   const { register, handleSubmit, errors, reset } = useForm();
 
@@ -87,6 +90,14 @@ function SignInPage() {
     console.log(data);
     reset();
   };
+
+  React.useEffect(() => {
+    auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
+        props.history.push("/");
+      }
+    });
+  }, [props.history]);
 
   return (
     <div className={classes.root}>
@@ -145,31 +156,19 @@ function SignInPage() {
             Forget Password
           </Link>
         </Typography>
-        <div style={{ marginTop: "15px" }}>
+        <Typography variant="subtitle2" component="p">
+          Don't have an account{" "}
           <Link className={classes.link} to="/signup">
-            <Button
-              className={classes.inputb}
-              variant="contained"
-              color="primary"
-            >
-              Sign Up with Email
-            </Button>
+            Sign Up
           </Link>
-          <Button
-            className={classes.inputb}
-            variant="contained"
-            color="primary"
-          >
-            Sign Up with Google
-          </Button>
-        </div>
-        {/* <StyledFirebaseAuth
+        </Typography>
+        <StyledFirebaseAuth
           uiConfig={uiConfig}
           firebaseAuth={firebase.auth()}
-        /> */}
+        />
       </Paper>
     </div>
   );
 }
 
-export default SignInPage;
+export default withRouter(SignInPage);

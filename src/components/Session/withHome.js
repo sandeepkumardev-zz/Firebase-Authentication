@@ -1,9 +1,9 @@
 import React from "react";
-import { useData } from "../../contexts";
+import { useData } from "../../firebase";
 import { withRouter } from "react-router-dom";
 
 const withHome = (Component) => {
-  function WithHome(props) {
+  const WithHome = (props) => {
     const { data } = useData();
 
     if (!data.user) {
@@ -11,7 +11,7 @@ const withHome = (Component) => {
     }
 
     return <Component />;
-  }
+  };
   return withRouter(WithHome);
 };
 export default withHome;
