@@ -1,23 +1,26 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
+import "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCsSgcVIBM1iRq4Ins5jaLVqajn_W95LL4",
-  authDomain: "all-bookmarks.firebaseapp.com",
-  databaseURL: "https://all-bookmarks-default-rtdb.firebaseio.com",
-  projectId: "all-bookmarks",
-  storageBucket: "all-bookmarks.appspot.com",
-  messagingSenderId: "171909931713",
-  appId: "1:171909931713:web:a1a486c23b217e20f0aa40",
-  measurementId: "G-JB50CC8R28",
+  apiKey: "AIzaSyC_FhNHeyUBotf4PNh2Xf8y9MrqVoxf9g0",
+  authDomain: "bookmarks-pwa.firebaseapp.com",
+  databaseURL: "https://bookmarks-pwa-default-rtdb.firebaseio.com",
+  projectId: "bookmarks-pwa",
+  storageBucket: "bookmarks-pwa.appspot.com",
+  messagingSenderId: "189796888734",
+  appId: "1:189796888734:web:63584a69f2d00276170b8f",
+  measurementId: "G-H0T1NE9M22",
 };
 
-const firebaseApp = firebase.initializeApp(firebaseConfig);
+const Firebase = firebase.initializeApp(firebaseConfig);
 
-const db = firebaseApp.firestore();
+const db = Firebase.database();
 const auth = firebase.auth();
 
 const user = (uid) => db.ref(`users/${uid}`);
+
+const rmUser = (uid) => db.ref(`users/${uid}`).remove();
 
 const users = () => db.ref("users");
 
@@ -36,6 +39,7 @@ const PasswordUpdate = (password) => auth.currentUser.updatePassword(password);
 export {
   auth,
   db,
+  rmUser,
   user,
   users,
   signUp,
@@ -44,3 +48,5 @@ export {
   PasswordReset,
   PasswordUpdate,
 };
+
+export default Firebase;

@@ -1,29 +1,44 @@
 import { Avatar, Button, Paper, Typography } from "@material-ui/core";
 import React from "react";
+import {
+  IconButton,
+  OutlinedInput,
+  InputLabel,
+  FormControl,
+} from "@material-ui/core";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
 import LockIcon from "@material-ui/icons/Lock";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase";
-import { auth } from "../../firebase";
+import { auth, signIn, user } from "../../firebase";
 import { useForm } from "react-hook-form";
 import { withRouter } from "react-router-dom";
+import * as ROUTES from "../../constants/routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    display: "flex",
+    justifyContent: "center",
     "& .firebaseui-idp-google>.firebaseui-idp-text": {
       color: "#25317F",
     },
+    "& ul": {
+      marginBlockEnd: "0px",
+    },
+    "& .firebaseui-idp-list>.firebaseui-list-item": {
+      marginBottom: "0px",
+    },
   },
-  paper: {
-    width: "270px",
-    padding: theme.spacing(3),
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
+  lable: {
+    padding: "0px 5px",
+    backgroundColor: "#fff",
   },
+  paper: { margin: "10px", maxWidth: "320px", padding: theme.spacing(3) },
   form: {
     width: "100%",
     marginBottom: "8px",
@@ -59,7 +74,6 @@ const useStyles = makeStyles((theme) => ({
   error: {
     color: "red",
     fontSize: "14px",
-    marginLeft: "10px",
   },
 }));
 
@@ -67,15 +81,15 @@ var uiConfig = {
   signInFlow: "popup",
   signInOptions: [firebase.auth.GoogleAuthProvider.PROVIDER_ID],
   callbacks: {
-    signInSuccessWithAuthResult: async (authResult) => {
-      const userInfo = authResult.additionalUserInfo;
-      if (userInfo.isNewUser && userInfo.providerId === "password") {
-        try {
-          await authResult.user.sendEmailVerification();
-          console.log("Check your email.");
-        } catch (e) {
-          console.log(e);
-        }
+    signInSuccessWithAuthResult: (authResult) => {
+      const newUser = authResult.additionalUserInfo.isNewUser;
+      const { displayName, email, photoURL, uid } = authResult.user;
+      if (newUser) {
+        user(uid).set({
+          name: displayName,
+          email,
+          photoURL,
+        });
       }
       return false;
     },
@@ -83,20 +97,42 @@ var uiConfig = {
 };
 
 function SignInPage(props) {
+  const [error, seterror] = React.useState(null);
   const classes = useStyles();
   const { register, handleSubmit, errors, reset } = useForm();
+  const [showPassword, setshowPassword] = React.useState(false);
+
+  const handleClickShowPassword = () => {
+    setshowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const onSubmit = (data) => {
-    console.log(data);
-    reset();
+    const { email, password } = data;
+    signIn(email, password)
+      .then(() => {
+        seterror(null);
+        reset();
+        props.history.push(ROUTES.DASHBOARD);
+      })
+      .catch((err) => {
+        seterror(err);
+      });
   };
 
   React.useEffect(() => {
-    auth.onAuthStateChanged((authUser) => {
+    const listener = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
-        props.history.push("/");
+        props.history.push(ROUTES.DASHBOARD);
       }
     });
+
+    return () => {
+      listener();
+    };
   }, [props.history]);
 
   return (
@@ -129,16 +165,35 @@ function SignInPage(props) {
           {errors.email && (
             <span className={classes.error}>{errors.email.message}</span>
           )}
-          <TextField
-            className={classes.input}
-            label="Password"
-            variant="outlined"
-            name="password"
-            inputRef={register({
-              required: "Password is empty!",
-              minLength: { value: 6, message: "Too short" },
-            })}
-          />
+          <FormControl className={classes.input} variant="outlined">
+            <InputLabel
+              className={classes.lable}
+              htmlFor="outlined-adornment-password"
+            >
+              Password
+            </InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              inputRef={register({
+                required: "Password is empty!",
+                minLength: { value: 6, message: "Too short" },
+              })}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
           {errors.password && (
             <span className={classes.error}>{errors.password.message}</span>
           )}
@@ -150,18 +205,21 @@ function SignInPage(props) {
           >
             Sign In
           </Button>
+          {error && <span className={classes.error}>{error.message}</span>}
         </form>
+
         <Typography variant="subtitle2" component="p">
-          <Link className={classes.link} to="/forget-password">
+          <Link className={classes.link} to={ROUTES.PASSWORD_FORGET}>
             Forget Password
           </Link>
         </Typography>
         <Typography variant="subtitle2" component="p">
           Don't have an account{" "}
-          <Link className={classes.link} to="/signup">
+          <Link className={classes.link} to={ROUTES.SIGN_UP}>
             Sign Up
           </Link>
         </Typography>
+        <hr />
         <StyledFirebaseAuth
           uiConfig={uiConfig}
           firebaseAuth={firebase.auth()}

@@ -1,6 +1,7 @@
 import {
   auth,
   db,
+  rmUser,
   user,
   users,
   signUp,
@@ -14,6 +15,7 @@ import { useData, DataProvider } from "./context";
 export {
   auth,
   db,
+  rmUser,
   user,
   users,
   signUp,

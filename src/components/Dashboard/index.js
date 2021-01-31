@@ -1,21 +1,8 @@
 import React from "react";
-import { signOut, useData } from "../../firebase";
-import { withHome } from "../Session";
+import { withAuthorization } from "../Session";
 
 function DashboardPage() {
-  const { dispatch } = useData();
-  return (
-    <div>
-      Bookmark Application
-      <button
-        onClick={() => {
-          signOut();
-        }}
-      >
-        Sign Out
-      </button>
-    </div>
-  );
+  return <div>Bookmark Application</div>;
 }
 
-export default withHome(DashboardPage);
+export default withAuthorization(DashboardPage);

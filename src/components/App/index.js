@@ -7,21 +7,15 @@ import PasswordForgetPage from "../PasswordForget";
 import DashboardPage from "../Dashboard";
 import AccountPage from "../Account";
 import AdminPage from "../Admin";
+import Navigation from "../Navigation";
 import ErrorPage from "../Error";
-import { auth, useData } from "../../firebase";
 import * as ROUTES from "../../constants/routes";
+import { withAuthentication } from "../Session";
 
 function App() {
-  const { dispatch } = useData();
-  console.log(auth);
-  React.useEffect(() => {
-    if (auth) {
-      dispatch({ type: "ADD_USER", auth });
-    }
-  }, [dispatch]);
-
   return (
     <Router>
+      <Navigation />
       <Switch>
         <Route exact path={ROUTES.LANDING} component={LandingPage} />
         <Route path={ROUTES.SIGN_IN} component={SignInPage} />
@@ -36,4 +30,4 @@ function App() {
   );
 }
 
-export default App;
+export default withAuthentication(App);

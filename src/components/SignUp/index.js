@@ -1,22 +1,35 @@
 import { Avatar, Button, Paper, Typography } from "@material-ui/core";
 import React from "react";
+import {
+  IconButton,
+  OutlinedInput,
+  InputLabel,
+  FormControl,
+} from "@material-ui/core";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
 import EnhancedEncryptionIcon from "@material-ui/icons/EnhancedEncryption";
 import { useForm } from "react-hook-form";
+import { withRouter } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
+import {} from "firebase";
+import { user, auth, signUp } from "../../firebase";
 import * as yup from "yup";
+import * as ROUTES from "../../constants/routes";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  root: {
+    display: "flex",
+    justifyContent: "center",
+  },
   paper: {
-    width: "270px",
+    margin: "10px",
+    maxWidth: "320px",
     padding: theme.spacing(3),
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
   },
   form: {
     width: "100%",
@@ -49,7 +62,10 @@ const useStyles = makeStyles((theme) => ({
   error: {
     color: "red",
     fontSize: "14px",
-    marginLeft: "10px",
+  },
+  lable: {
+    padding: "0px 5px",
+    backgroundColor: "#fff",
   },
 }));
 
@@ -72,17 +88,54 @@ const schema = yup.object().shape({
     .oneOf([yup.ref("passwordOne"), null], "Passwords does not match."),
 });
 
-function SignUpPage() {
+function SignUpPage(props) {
+  const [error, seterror] = React.useState(null);
   const classes = useStyles();
   const { register, handleSubmit, errors, reset } = useForm({
     mode: "onBlur",
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    reset();
+  const [showPassword, setshowPassword] = React.useState(false);
+  const handleClickShowPassword = () => {
+    setshowPassword(!showPassword);
   };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const onSubmit = (data) => {
+    const { name, email, passwordOne } = data;
+    signUp(email, passwordOne)
+      .then((authUser) => {
+        user(authUser.user.uid).set({
+          name,
+          email,
+          photoURL: "https://img.icons8.com/dusk/344/change-user-male.png",
+        });
+        seterror(null);
+        authUser.user.updateProfile({
+          displayName: name,
+          photoURL: "https://img.icons8.com/dusk/344/change-user-male.png",
+        });
+      })
+      .catch((err) => {
+        seterror(err);
+      });
+  };
+
+  React.useEffect(() => {
+    const listener = auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
+        props.history.push(ROUTES.DASHBOARD);
+      }
+    });
+
+    return () => {
+      listener();
+    };
+  }, [props.history]);
 
   return (
     <div className={classes.root}>
@@ -118,23 +171,67 @@ function SignUpPage() {
           {errors.email && (
             <span className={classes.error}>{errors.email.message}</span>
           )}
-          <TextField
-            className={classes.input}
-            label="Password"
-            variant="outlined"
-            name="passwordOne"
-            inputRef={register}
-          />
+          <FormControl className={classes.input} variant="outlined">
+            <InputLabel
+              className={classes.lable}
+              htmlFor="outlined-adornment-password"
+            >
+              Password
+            </InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={showPassword ? "text" : "password"}
+              name="passwordOne"
+              inputRef={register({
+                required: "Password is empty!",
+                minLength: { value: 6, message: "Too short" },
+              })}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
           {errors.passwordOne && (
             <span className={classes.error}>{errors.passwordOne.message}</span>
           )}
-          <TextField
-            className={classes.input}
-            label="Confirm Password"
-            variant="outlined"
-            name="passwordTwo"
-            inputRef={register}
-          />
+          <FormControl className={classes.input} variant="outlined">
+            <InputLabel
+              className={classes.lable}
+              htmlFor="outlined-adornment-password2"
+            >
+              Confirm Password
+            </InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password2"
+              type={showPassword ? "text" : "password"}
+              name="passwordTwo"
+              inputRef={register({
+                required: "Password is empty!",
+                minLength: { value: 6, message: "Too short" },
+              })}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
           {errors.passwordTwo && (
             <span className={classes.error}>{errors.passwordTwo.message}</span>
           )}
@@ -147,11 +244,12 @@ function SignUpPage() {
           >
             Sign Up
           </Button>
+          {error && <span className={classes.error}>{error.message}</span>}
         </form>
 
         <Typography variant="subtitle2" component="p">
           Already have an account{" "}
-          <Link className={classes.link} to="/signin">
+          <Link className={classes.link} to={ROUTES.SIGN_IN}>
             SignIn
           </Link>
         </Typography>
@@ -160,4 +258,4 @@ function SignUpPage() {
   );
 }
 
-export default SignUpPage;
+export default withRouter(SignUpPage);
