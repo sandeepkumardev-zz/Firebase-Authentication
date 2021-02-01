@@ -15,10 +15,10 @@ import { Link } from "react-router-dom";
 import LockIcon from "@material-ui/icons/Lock";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase";
-import { signIn, user } from "../../firebase";
+import { signIn, user } from "../../firebase/firebase";
 import { useForm } from "react-hook-form";
 import * as ROUTES from "../../constants/routes";
-import withSignIn_Up from "../Session/withSignIn-Up";
+import withSignIn_Up from "../Session/withSignIn_Up";
 
 const useStyles = makeStyles((theme) => ({
   root: {

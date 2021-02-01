@@ -15,12 +15,12 @@ import { Link } from "react-router-dom";
 import EnhancedEncryptionIcon from "@material-ui/icons/EnhancedEncryption";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {} from "firebase";
-import { user, auth, signUp, DataProvider, useData } from "../../firebase";
+// import {} from "firebase";
+import { user, auth, signUp } from "../../firebase/firebase";
 import * as yup from "yup";
 import * as ROUTES from "../../constants/routes";
-import withSignIn_Up from "../Session/withSignIn-Up";
-import { Data } from "../../firebase/context";
+import withSignIn_Up from "../Session/withSignIn_Up";
+import { useAuth } from "../../firebase/context";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -106,7 +106,7 @@ function SignUpPage() {
     event.preventDefault();
   };
 
-  const { updateUser } = React.useContext(Data);
+  const { updateUser } = useAuth();
 
   const onSubmit = (data) => {
     var photoURL = "https://img.icons8.com/dusk/344/change-user-male.png";

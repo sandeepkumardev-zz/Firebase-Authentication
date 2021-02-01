@@ -3,13 +3,13 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./components/App";
 import reportWebVitals from "./reportWebVitals";
-import { DataProvider } from "./firebase";
+import { AuthProvider } from "./firebase/context";
 
 ReactDOM.render(
   <React.StrictMode>
-    <DataProvider>
+    <AuthProvider>
       <App />
-    </DataProvider>
+    </AuthProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

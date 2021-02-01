@@ -9,7 +9,7 @@ import {
 import React from "react";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import { useForm } from "react-hook-form";
-import { PasswordReset } from "../../firebase";
+import { PasswordReset } from "../../firebase/firebase";
 import * as ROUTES from "../../constants/routes";
 import { Link } from "react-router-dom";
 

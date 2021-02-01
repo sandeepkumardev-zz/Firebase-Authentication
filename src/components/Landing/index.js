@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import * as ROUTES from "../../constants/routes";
 import { Button, makeStyles, Typography } from "@material-ui/core";
-import AuthUserContext from "../Session/context";
+import { useAuth } from "../../firebase/context";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -36,13 +36,13 @@ const useStyle = makeStyles((theme) => ({
 
 const Landing = () => {
   const classes = useStyle();
-  const { authUser } = React.useContext(AuthUserContext);
+  const { currentUser } = useAuth();
   return (
     <div className={classes.root}>
       <Typography variant="h1">
-        Welcome {authUser && authUser.displayName}
+        Welcome {currentUser && currentUser.displayName}
       </Typography>
-      {authUser ? <Dashboard /> : <AuthButton />}
+      {currentUser ? <Dashboard /> : <AuthButton />}
     </div>
   );
 };

@@ -10,7 +10,6 @@ import AdminPage from "../Admin";
 import Navigation from "../Navigation";
 import ErrorPage from "../Error";
 import * as ROUTES from "../../constants/routes";
-import { withAuthentication } from "../Session";
 
 function App() {
   return (
@@ -30,4 +29,4 @@ function App() {
   );
 }
 
-export default withAuthentication(App);
+export default App;

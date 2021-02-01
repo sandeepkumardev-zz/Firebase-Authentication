@@ -1,8 +1,14 @@
 import React from "react";
-import { withAuthorization } from "../Session";
+import Cards from "./Cards";
+import { ActionProvider } from "./context";
+import withAuthorization from "../Session/withAuthorization";
 
 function DashboardPage() {
-  return <div>Bookmark Application</div>;
+  return (
+    <ActionProvider>
+      <Cards />
+    </ActionProvider>
+  );
 }
 
 export default withAuthorization(DashboardPage);

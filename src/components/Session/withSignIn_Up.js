@@ -3,19 +3,19 @@ import { useHistory } from "react-router-dom";
 import * as ROUTES from "../../constants/routes";
 import { useAuth } from "../../firebase/context";
 
-function withAuthorization(Component) {
-  function WithAuthorization() {
+function withSignIn_Up(Component) {
+  function WithSignIn_Up() {
     const history = useHistory();
     const { currentUser } = useAuth();
 
-    if (!currentUser) {
-      history.push(ROUTES.LANDING);
+    if (currentUser) {
+      history.push(ROUTES.DASHBOARD);
     }
 
-    return <>{currentUser ? <Component /> : null}</>;
+    return <>{currentUser ? null : <Component />}</>;
   }
 
-  return WithAuthorization;
+  return WithSignIn_Up;
 }
 
-export default withAuthorization;
+export default withSignIn_Up;

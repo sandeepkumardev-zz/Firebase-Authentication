@@ -6,7 +6,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
-import { users } from "../../firebase";
+import { users } from "../../firebase/firebase";
 import withAuthorization from "../Session/withAuthorization";
 
 function Admin() {

@@ -16,16 +16,22 @@ import PasswordChange from "../PasswordChange";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import AuthUserContext from "../Session/context";
-import withAuthorization from "../Session/withAuthorization";
-import { auth, reAuth, rmUser, signOut, storage, user } from "../../firebase";
+import {
+  auth,
+  reAuth,
+  rmUser,
+  signOut,
+  storage,
+  user,
+} from "../../firebase/firebase";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Slide from "@material-ui/core/Slide";
-import { Data } from "../../firebase/context";
+import { useAuth } from "../../firebase/context";
+import withAuthorization from "../Session/withAuthorization";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -107,14 +113,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function FullWidthGrid() {
+function Account() {
   const classes = useStyles();
   const agreeRef = React.useRef(null);
-  const { authUser } = React.useContext(AuthUserContext);
-  const { displayName, email, photoURL, emailVerified } = authUser;
+  const { currentUser, updateUser } = useAuth();
+  const { displayName, email, photoURL, emailVerified } = currentUser;
 
   const [username, setUsername] = React.useState(displayName);
   const [image, setImage] = React.useState(photoURL);
+  const [uploding, setuploding] = React.useState(false);
 
   const [save, setsave] = React.useState(false);
 
@@ -124,15 +131,13 @@ function FullWidthGrid() {
     }
   }, [displayName, username]);
 
-  const { updateUser } = React.useContext(Data);
-
   const saveHandler = () => {
-    user(authUser.uid).set({
+    user(currentUser.uid).set({
       name: username,
       email,
       photoURL: image,
     });
-    authUser.updateProfile({
+    currentUser.updateProfile({
       displayName: username,
     });
     updateUser({
@@ -159,6 +164,7 @@ function FullWidthGrid() {
     }
     if (agreeRef.current.value.length >= 6) {
       const credential = reAuth.credential(email, agreeRef.current.value);
+
       rmUser(auth.currentUser?.uid)
         .then(() => {
           auth.currentUser
@@ -194,27 +200,31 @@ function FullWidthGrid() {
       storageRef.put(file).on(
         "stage_changed",
         (snap) => {
+          setuploding(true);
           let percentage = (snap.bytesTransferred / snap.totalBytes) * 100;
-          console.log(percentage);
+          setuploding(`Uploding... ${percentage.toFixed(0)}%`);
         },
         (err) => {
           setError(err);
         },
+
         async () => {
           const url = await storageRef.getDownloadURL();
           setImage(url);
-          user(authUser.uid).set({
+
+          user(currentUser.uid).set({
             name: username,
             email,
             photoURL: url,
           });
-          authUser.updateProfile({
+          currentUser.updateProfile({
             photoURL: url,
           });
           updateUser({
             name: username,
             photoURL: url,
           });
+          setuploding(null);
         }
       );
     } else {
@@ -238,6 +248,7 @@ function FullWidthGrid() {
                 height="100px"
                 style={{ borderRadius: "50%" }}
               />
+              {uploding && <span style={{ fontSize: "14px" }}>{uploding}</span>}
               <label className={classes.upload}>
                 <input type="file" onChange={fileUpload} />
                 {fileError && (
@@ -299,10 +310,15 @@ function FullWidthGrid() {
             </div>
           </Grid>
           <Divider width="100%" />
-          <Grid item xs={12}>
-            <PasswordChange />
-          </Grid>
-          <Divider width="100%" />
+          {!emailVerified && (
+            <>
+              <Grid item xs={12}>
+                <PasswordChange />
+              </Grid>
+              <Divider width="100%" />
+            </>
+          )}
+
           <Grid item xs={12} className={classes.bottom}>
             <Button
               variant="contained"
@@ -361,4 +377,4 @@ function FullWidthGrid() {
   );
 }
 
-export default withAuthorization(FullWidthGrid);
+export default withAuthorization(Account);

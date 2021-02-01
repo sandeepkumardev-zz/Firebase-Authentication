@@ -14,16 +14,15 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import * as ROUTES from "../../constants/routes";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import VerifiedUserIcon from "@material-ui/icons/VerifiedUser";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import HomeIcon from "@material-ui/icons/Home";
-import { auth, signOut } from "../../firebase/firebase";
+import { signOut } from "../../firebase/firebase";
 import { Avatar } from "@material-ui/core";
-import { DataProvider, useData } from "../../firebase";
-import { Data } from "../../firebase/context";
+import { useAuth } from "../../firebase/context";
 
 const drawerWidth = 240;
 
@@ -69,8 +68,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Navigation(props) {
+function Navigation() {
   const classes = useStyles();
+  const history = useHistory();
   const [open, setOpen] = React.useState(false);
   const [user, setUser] = React.useState(null);
 
@@ -83,24 +83,18 @@ function Navigation(props) {
   };
 
   const routes = (data) => {
-    props.history.push(data);
+    history.push(data);
   };
 
-  const { userD } = React.useContext(Data);
+  const { userInfo, currentUser } = useAuth();
 
   React.useEffect(() => {
-    const listener = auth.onAuthStateChanged((authUser) => {
-      if (!authUser) {
-        return setUser(null);
-      }
+    if (!currentUser) {
+      return setUser(null);
+    }
 
-      setUser(userD);
-    });
-
-    return () => {
-      listener();
-    };
-  }, [userD]);
+    setUser(userInfo);
+  }, [userInfo, currentUser]);
 
   return (
     <div className={classes.root}>
@@ -187,4 +181,4 @@ function Navigation(props) {
     </div>
   );
 }
-export default withRouter(Navigation);
+export default Navigation;
