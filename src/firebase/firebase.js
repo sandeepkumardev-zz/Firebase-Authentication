@@ -1,6 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/database";
+import "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC_FhNHeyUBotf4PNh2Xf8y9MrqVoxf9g0",
@@ -15,6 +16,7 @@ const firebaseConfig = {
 
 const Firebase = firebase.initializeApp(firebaseConfig);
 
+const storage = firebase.storage();
 const db = Firebase.database();
 const auth = firebase.auth();
 const reAuth = firebase.auth.EmailAuthProvider;
@@ -41,6 +43,7 @@ export {
   auth,
   db,
   reAuth,
+  storage,
   rmUser,
   user,
   users,

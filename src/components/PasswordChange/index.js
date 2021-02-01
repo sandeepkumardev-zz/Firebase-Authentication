@@ -3,7 +3,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { PasswordUpdate } from "../../firebase";
+import { auth, PasswordUpdate, reAuth } from "../../firebase";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -23,9 +23,13 @@ const useStyle = makeStyles((theme) => ({
 }));
 
 const schema = yup.object().shape({
+  password: yup
+    .string()
+    .required("Old Password is a required field.")
+    .min(6, "Too short."),
   passwordOne: yup
     .string()
-    .required("Password is a required field.")
+    .required("New Password is a required field.")
     .min(6, "Too short."),
   passwordTwo: yup
     .string()
@@ -36,25 +40,46 @@ const schema = yup.object().shape({
 const PasswordChange = () => {
   const classes = useStyle();
   const [msg, setmsg] = React.useState(null);
+  const [error, setError] = React.useState(null);
   const { register, handleSubmit, errors, reset } = useForm({
     mode: "onBlur",
     resolver: yupResolver(schema),
   });
 
   const onSubmit = (data) => {
-    PasswordUpdate(data.passwordOne)
+    const email = auth.currentUser.email;
+    const credential = reAuth.credential(email, data.password);
+    auth.currentUser
+      .reauthenticateWithCredential(credential)
       .then(() => {
-        reset();
-        setmsg("Password successfully changed!");
+        PasswordUpdate(data.passwordOne)
+          .then(() => {
+            reset();
+            setmsg("Password successfully changed!");
+          })
+          .catch(() => {
+            setmsg(null);
+          });
       })
-      .catch(() => {
-        setmsg(null);
+      .catch((err) => {
+        setError(err);
       });
   };
   return (
     <div className={classes.root}>
       <Typography variant="h5">Change Password</Typography>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <TextField
+          className={classes.input}
+          fullWidth
+          label="Old Password"
+          variant="outlined"
+          name="password"
+          inputRef={register}
+        />
+        {errors.password && (
+          <span className={classes.error}>{errors.password.message}</span>
+        )}
         <TextField
           className={classes.input}
           fullWidth
@@ -80,6 +105,7 @@ const PasswordChange = () => {
         {msg && (
           <span style={{ textDecoration: "none", color: "green" }}>{msg}</span>
         )}
+        {error && <span className={classes.error}>{error.message}</span>}
         <Button
           type="submit"
           className={classes.input}

@@ -18,7 +18,7 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import AuthUserContext from "../Session/context";
 import withAuthorization from "../Session/withAuthorization";
-import { auth, reAuth, rmUser, signOut, user } from "../../firebase";
+import { auth, reAuth, rmUser, signOut, storage, user } from "../../firebase";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -92,6 +92,18 @@ const useStyles = makeStyles((theme) => ({
   error: {
     color: "red",
     fontSize: "14px",
+  },
+  upload: {
+    "& input": {
+      display: "none",
+    },
+    cursor: "pointer",
+    border: "1px solid #3f51b5",
+    margin: "10px 0 0 0",
+    padding: "2px 5px",
+    borderRadius: "4px",
+    fontSize: "12px",
+    color: "#3f51b5",
   },
 }));
 
@@ -171,6 +183,45 @@ function FullWidthGrid() {
     }
   };
 
+  const [fileError, setFileError] = React.useState(null);
+  const types = ["image/jpeg", "image/png"];
+  const fileUpload = (e) => {
+    let file = e.target.files[0];
+    if (file && types.includes(file.type)) {
+      setFileError(null);
+
+      const storageRef = storage.ref(file.name);
+      storageRef.put(file).on(
+        "stage_changed",
+        (snap) => {
+          let percentage = (snap.bytesTransferred / snap.totalBytes) * 100;
+          console.log(percentage);
+        },
+        (err) => {
+          setError(err);
+        },
+        async () => {
+          const url = await storageRef.getDownloadURL();
+          setImage(url);
+          user(authUser.uid).set({
+            name: username,
+            email,
+            photoURL: url,
+          });
+          authUser.updateProfile({
+            photoURL: url,
+          });
+          updateUser({
+            name: username,
+            photoURL: url,
+          });
+        }
+      );
+    } else {
+      setFileError("Select a valid file type (png or jpeg).");
+    }
+  };
+
   return (
     <div className={classes.root}>
       <Container maxWidth="sm">
@@ -181,14 +232,21 @@ function FullWidthGrid() {
           <Grid item xs={12} sm={6}>
             <div className={classes.photo}>
               <img
-                src={photoURL}
-                alt=""
+                src={image}
+                alt="image_not_found"
                 width="100px"
+                height="100px"
                 style={{ borderRadius: "50%" }}
               />
-              <Button variant="outlined" size="small" color="primary">
-                Change Photo
-              </Button>
+              <label className={classes.upload}>
+                <input type="file" onChange={fileUpload} />
+                {fileError && (
+                  <span className={classes.error}>{fileError}</span>
+                )}
+                <span variant="outlined" size="small" color="primary">
+                  Change Photo
+                </span>
+              </label>
             </div>
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -264,8 +322,10 @@ function FullWidthGrid() {
               Delete Account
             </Button>
           </Grid>
+          <span style={{ width: "100%", height: "12px" }}></span>
         </Grid>
       </Container>
+
       <Dialog
         className={classes.dialog}
         open={open}
