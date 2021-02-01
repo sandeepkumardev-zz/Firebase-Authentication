@@ -14,12 +14,13 @@ import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
 import EnhancedEncryptionIcon from "@material-ui/icons/EnhancedEncryption";
 import { useForm } from "react-hook-form";
-import { withRouter } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {} from "firebase";
-import { user, auth, signUp } from "../../firebase";
+import { user, auth, signUp, DataProvider, useData } from "../../firebase";
 import * as yup from "yup";
 import * as ROUTES from "../../constants/routes";
+import withSignIn_Up from "../Session/withSignIn-Up";
+import { Data } from "../../firebase/context";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,10 +89,10 @@ const schema = yup.object().shape({
     .oneOf([yup.ref("passwordOne"), null], "Passwords does not match."),
 });
 
-function SignUpPage(props) {
+function SignUpPage() {
   const [error, seterror] = React.useState(null);
   const classes = useStyles();
-  const { register, handleSubmit, errors, reset } = useForm({
+  const { register, handleSubmit, errors } = useForm({
     mode: "onBlur",
     resolver: yupResolver(schema),
   });
@@ -105,37 +106,30 @@ function SignUpPage(props) {
     event.preventDefault();
   };
 
+  const { updateUser } = React.useContext(Data);
+
   const onSubmit = (data) => {
+    var photoURL = "https://img.icons8.com/dusk/344/change-user-male.png";
     const { name, email, passwordOne } = data;
+    updateUser({ name, photoURL });
+
     signUp(email, passwordOne)
       .then((authUser) => {
         user(authUser.user.uid).set({
           name,
           email,
-          photoURL: "https://img.icons8.com/dusk/344/change-user-male.png",
+          photoURL,
         });
         seterror(null);
-        authUser.user.updateProfile({
+        auth.currentUser.updateProfile({
           displayName: name,
-          photoURL: "https://img.icons8.com/dusk/344/change-user-male.png",
+          photoURL,
         });
       })
       .catch((err) => {
         seterror(err);
       });
   };
-
-  React.useEffect(() => {
-    const listener = auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        props.history.push(ROUTES.DASHBOARD);
-      }
-    });
-
-    return () => {
-      listener();
-    };
-  }, [props.history]);
 
   return (
     <div className={classes.root}>
@@ -180,7 +174,7 @@ function SignUpPage(props) {
             </InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
-              type={showPassword ? "text" : "password"}
+              // type={showPassword ? "text" : "password"}
               name="passwordOne"
               inputRef={register({
                 required: "Password is empty!",
@@ -212,7 +206,7 @@ function SignUpPage(props) {
             </InputLabel>
             <OutlinedInput
               id="outlined-adornment-password2"
-              type={showPassword ? "text" : "password"}
+              // type={showPassword ? "text" : "password"}
               name="passwordTwo"
               inputRef={register({
                 required: "Password is empty!",
@@ -258,4 +252,4 @@ function SignUpPage(props) {
   );
 }
 
-export default withRouter(SignUpPage);
+export default withSignIn_Up(SignUpPage);

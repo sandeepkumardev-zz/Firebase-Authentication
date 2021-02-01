@@ -15,10 +15,10 @@ import { Link } from "react-router-dom";
 import LockIcon from "@material-ui/icons/Lock";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase";
-import { auth, signIn, user } from "../../firebase";
+import { signIn, user } from "../../firebase";
 import { useForm } from "react-hook-form";
-import { withRouter } from "react-router-dom";
 import * as ROUTES from "../../constants/routes";
+import withSignIn_Up from "../Session/withSignIn-Up";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -96,7 +96,7 @@ var uiConfig = {
   },
 };
 
-function SignInPage(props) {
+function SignInPage() {
   const [error, seterror] = React.useState(null);
   const classes = useStyles();
   const { register, handleSubmit, errors, reset } = useForm();
@@ -116,24 +116,11 @@ function SignInPage(props) {
       .then(() => {
         seterror(null);
         reset();
-        props.history.push(ROUTES.DASHBOARD);
       })
       .catch((err) => {
         seterror(err);
       });
   };
-
-  React.useEffect(() => {
-    const listener = auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        props.history.push(ROUTES.DASHBOARD);
-      }
-    });
-
-    return () => {
-      listener();
-    };
-  }, [props.history]);
 
   return (
     <div className={classes.root}>
@@ -174,7 +161,7 @@ function SignInPage(props) {
             </InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
-              type={showPassword ? "text" : "password"}
+              // type={showPassword ? "text" : "password"}
               name="password"
               inputRef={register({
                 required: "Password is empty!",
@@ -229,4 +216,4 @@ function SignInPage(props) {
   );
 }
 
-export default withRouter(SignInPage);
+export default withSignIn_Up(SignInPage);

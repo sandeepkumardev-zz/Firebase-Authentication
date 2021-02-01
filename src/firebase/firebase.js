@@ -17,6 +17,7 @@ const Firebase = firebase.initializeApp(firebaseConfig);
 
 const db = Firebase.database();
 const auth = firebase.auth();
+const reAuth = firebase.auth.EmailAuthProvider;
 
 const user = (uid) => db.ref(`users/${uid}`);
 
@@ -39,6 +40,7 @@ const PasswordUpdate = (password) => auth.currentUser.updatePassword(password);
 export {
   auth,
   db,
+  reAuth,
   rmUser,
   user,
   users,

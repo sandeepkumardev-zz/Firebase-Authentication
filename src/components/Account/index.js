@@ -18,13 +18,14 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import AuthUserContext from "../Session/context";
 import withAuthorization from "../Session/withAuthorization";
-import { auth, rmUser, signOut, user } from "../../firebase";
+import { auth, reAuth, rmUser, signOut, user } from "../../firebase";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Slide from "@material-ui/core/Slide";
+import { Data } from "../../firebase/context";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -88,14 +89,21 @@ const useStyles = makeStyles((theme) => ({
       color: "black",
     },
   },
+  error: {
+    color: "red",
+    fontSize: "14px",
+  },
 }));
 
 function FullWidthGrid() {
   const classes = useStyles();
+  const agreeRef = React.useRef(null);
   const { authUser } = React.useContext(AuthUserContext);
   const { displayName, email, photoURL, emailVerified } = authUser;
 
   const [username, setUsername] = React.useState(displayName);
+  const [image, setImage] = React.useState(photoURL);
+
   const [save, setsave] = React.useState(false);
 
   React.useEffect(() => {
@@ -104,14 +112,20 @@ function FullWidthGrid() {
     }
   }, [displayName, username]);
 
+  const { updateUser } = React.useContext(Data);
+
   const saveHandler = () => {
     user(authUser.uid).set({
       name: username,
       email,
-      photoURL: "https://img.icons8.com/dusk/344/change-user-male.png",
+      photoURL: image,
     });
     authUser.updateProfile({
       displayName: username,
+    });
+    updateUser({
+      name: username,
+      photoURL: image,
     });
     setsave(false);
   };
@@ -122,21 +136,39 @@ function FullWidthGrid() {
     setOpen(false);
   };
 
+  const [error, setError] = React.useState(null);
   const handleAgree = () => {
-    rmUser(auth.currentUser?.uid)
-      .then(() => {
-        auth.currentUser
-          ?.delete()
-          .then(() => {
-            console.log("Delete account success.");
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    setError(null);
+    if (agreeRef.current.value === "") {
+      agreeRef.current.focus();
+    }
+    if (agreeRef.current.value.length < 6 && agreeRef.current.value !== "") {
+      setError("Too short!");
+    }
+    if (agreeRef.current.value.length >= 6) {
+      const credential = reAuth.credential(email, agreeRef.current.value);
+      rmUser(auth.currentUser?.uid)
+        .then(() => {
+          auth.currentUser
+            .reauthenticateWithCredential(credential)
+            .then(() => {
+              auth.currentUser
+                ?.delete()
+                .then(() => {
+                  console.log("Delete account success.");
+                })
+                .catch(function (error) {
+                  setError("Somthing went wrong!");
+                });
+            })
+            .catch((err) => {
+              setError(err.message);
+            });
+        })
+        .catch((err) => {
+          setError("Somthing went wrong!");
+        });
+    }
   };
 
   return (
@@ -247,16 +279,20 @@ function FullWidthGrid() {
             Are you suru to delete your account and database? This action can't
             be undone!
           </DialogContentText>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <TextField
+              className={classes.input}
+              label="Re-enter your password."
+              inputRef={agreeRef}
+            />
+            {error && <span className={classes.error}>{error}</span>}
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
             Disagree
           </Button>
-          <Button
-            onClick={handleAgree}
-            color="primary"
-            style={{ color: "red" }}
-          >
+          <Button onClick={handleAgree} style={{ color: "red" }}>
             Agree
           </Button>
         </DialogActions>

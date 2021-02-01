@@ -1,12 +1,15 @@
 import React from "react";
-import { dataReducer, initialState } from "./reducers";
 
-const Data = React.createContext(null);
+export const Data = React.createContext(null);
 
 export const DataProvider = ({ children }) => {
-  const [data, dispatch] = React.useReducer(dataReducer, initialState);
+  const [userD, setUser] = React.useState(null);
 
-  return <Data.Provider value={{ data, dispatch }}>{children}</Data.Provider>;
+  const updateUser = (logs) => {
+    setUser(logs);
+  };
+
+  return (
+    <Data.Provider value={{ userD, updateUser }}>{children}</Data.Provider>
+  );
 };
-
-export const useData = () => React.useContext(Data);

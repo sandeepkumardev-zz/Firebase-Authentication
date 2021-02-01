@@ -1,6 +1,7 @@
 import {
   auth,
   db,
+  reAuth,
   rmUser,
   user,
   users,
@@ -10,11 +11,12 @@ import {
   PasswordReset,
   PasswordUpdate,
 } from "./firebase";
-import { useData, DataProvider } from "./context";
+import { DataProvider } from "./context";
 
 export {
   auth,
   db,
+  reAuth,
   rmUser,
   user,
   users,
@@ -25,5 +27,4 @@ export {
   PasswordUpdate,
   //...........
   DataProvider,
-  useData,
 };

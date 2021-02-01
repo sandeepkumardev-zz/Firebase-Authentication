@@ -22,6 +22,8 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import HomeIcon from "@material-ui/icons/Home";
 import { auth, signOut } from "../../firebase/firebase";
 import { Avatar } from "@material-ui/core";
+import { DataProvider, useData } from "../../firebase";
+import { Data } from "../../firebase/context";
 
 const drawerWidth = 240;
 
@@ -84,18 +86,21 @@ function Navigation(props) {
     props.history.push(data);
   };
 
+  const { userD } = React.useContext(Data);
+
   React.useEffect(() => {
     const listener = auth.onAuthStateChanged((authUser) => {
       if (!authUser) {
         return setUser(null);
       }
-      setUser({ name: authUser.displayName, photoURL: authUser.photoURL });
+
+      setUser(userD);
     });
 
     return () => {
       listener();
     };
-  }, [props.history]);
+  }, [userD]);
 
   return (
     <div className={classes.root}>
